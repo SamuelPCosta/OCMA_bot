@@ -232,7 +232,7 @@ var l = (r) => `[${r}m`,
         gray: l("90"),
         bgBlack: l("40"),
         bgRed: l("41"),
-        bgGreen: l("42"),
+        bgGreen: l("103"),
         bgYellow: l("43"),
         bgBlue: l("44"),
         bgMagenta: l("45"),
@@ -360,7 +360,7 @@ var T = console.log,
                 this.config.quiet && (T = () => {}),
                 this.config.readfile && this.loadFile(this.config.readfile),
                 this.config.seed || (y(), (this.config.seed = v())),
-                T(`Seed da partida ${v()}`), //testar 34343
+                T(`Seed da partida ${v()}`), //testar 34343 e 47983 e 17108
                 (!this.currPlayerIndex || this.currPlayerIndex < 0 || this.currPlayerIndex > this.config.bots.length - 1) && (this.currPlayerIndex = h(this.config.bots.length)),
                 (this.players = this.config.bots.map((s) => new $(this, ut.basename(s), s))),
                 this.players.forEach((s, o) => (s.color = Vt[o]));
@@ -707,7 +707,7 @@ function Y() {
     }
     console.log(e);
 }
-var x = 30, //RODADAS
+var x = 52, //RODADAS
     z = 1e4,
     xt,
     Ht = [
