@@ -707,7 +707,7 @@ function Y() {
     }
     console.log(e);
 }
-var x = 52, //RODADAS
+var x = 500, //RODADAS
     z = 1e4,
     xt,
     Ht = [
