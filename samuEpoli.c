@@ -1,21 +1,19 @@
-/********************************************************************
+/***************************************************************************
 Poliane Brito de Oliveira & Samuel Soares Pereira Costa
 
 v1.0.0
 Descrição da estratégia de movimentação: 
 
     Analisar inicialmente as 4 direções principais para decidir qual a mais 
-vantajosa para  a  situação, caso nenhuma apresente vantagem, analisar as 4
-diagonais,  caso  nenhuma  apresente  vantagem aumentar a região de busca e 
-mudar de estratégia. Serão analizadas as aréas acima, abaixo, a direita e a
-esquerda do barco, para as áreas acima e a baixo suas dimensões (LxA) serão
-correspondentes a L=(2*C)+1 e A=C, já as áreas à esquerda e à direita terão
-dimensões L=C e A=(2*C)+1,  considerando  C igual ao numero de posiçõees de 
-distancia  do nosso barco que desejamos  "olhar"  para buscar alguma coisa. 
-Vale ressaltar que C será  incrementado de 1 em 1 caso nada seja encontrado 
-dentro das 4 áreas.
-********************************************************************/
-
+vantajosa para a situação, caso nenhuma seja vantajosa aumentar a região de
+busca e mudar de estratégia.  Serão  analizadas  as  aréas acima, abaixo, a 
+direita e a esquerda do barco, para as áreas acima e a baixo suas dimensões
+(LxA) serão correspondentes a L=(2*C)+1 e A=C,  já  as áreas à esquerda e à 
+direita terão dimensões L=C e A=(2*C)+1,  considerando C igual ao numero de 
+posiçõees  de  distancia  do  nosso barco que desejamos "olhar" para buscar 
+alguma coisa.  Vale ressaltar que C será incrementado de um em um caso nada
+seja encontrado dentro das 4 áreas.
+***************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -28,8 +26,8 @@ dentro das 4 áreas.
 
 #define CIMA 0
 #define BAIXO 1
-#define DIREITA 2
-#define ESQUERDA 3
+#define DIR 2
+#define ESQ 3
 
 typedef struct {
     int value;
@@ -37,8 +35,7 @@ typedef struct {
 } Celula;
 
 typedef struct meuBarco{
-	int px;
-	int py;
+	int px; int py;
     int casaAtual;
     int inicio;
     int mullet; 
@@ -100,13 +97,7 @@ Barco readData(Barco barco, int h, int w, char* myId, Celula ***lerMapa) {
             mapa[x][y].boat=1;
             //outros bots
         }
-        // for (int i = 0; i < h; i++) { 
-        //     for (int j = 0; j < w; j++) {
-        //         fprintf(stderr, "%i ", mapa[i][j]);
-        //     }fprintf(stderr, "\n");
-        // }
         // fprintf(stderr, "To na posicao (%d,%d)\n", y, x); 
-        //Considerando novamente um posicionamento semelhante a um plano cartesiano
 	}
     *lerMapa=mapa;
     return barco;
@@ -115,24 +106,21 @@ Barco readData(Barco barco, int h, int w, char* myId, Celula ***lerMapa) {
 // 0:cima  1:baixo    2:direita   3:esquerda
 // 4:cimaesquerda  5:cimadireita    6:baixoesquerda   7:baixodireita
 void direcao(int decisao){
-    if (decisao==0){
-        printf("UP\n");
-    }else if(decisao==1){
-        printf("DOWN\n");
-    }else if(decisao==2){
-        printf("RIGHT\n");
-    }else if(decisao==3){
-        printf("LEFT\n");
-    }else if((decisao==4)||(decisao==5)){
-        printf("UP\n");
-    }else if((decisao==6)||(decisao==7)){
-        printf("DOWN\n");
-    }
+    // int boatD=mapa[barco.px+1][barco.py].boat; int portoD=mapa[barco.px+1][barco.py].value;
+    // int boatE=mapa[barco.px-1][barco.py].boat; int portoE=mapa[barco.px-1][barco.py].value;
+    // int boatC=mapa[barco.px][barco.py+1].boat; int portoC=mapa[barco.px][barco.py+1].value;
+    // int boatB=mapa[barco.px][barco.py-1].boat; int portoB=mapa[barco.px][barco.py-1].value;
+    
+    if (decisao==0){printf("UP\n");
+    }else if(decisao==1){printf("DOWN\n");
+    }else if(decisao==2){printf("RIGHT\n");
+    }else if(decisao==3){printf("LEFT\n");}
 }
 
 void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int acao, int casas){
     // if (barco.py>0){printf("UP\n");
     // }else{printf("DOWN\n");}
+    fprintf(stderr, "CASAS\n: %d\n",casas);
     int portos[4];
     for (int i = 0; i < 4; i++){direcoes[i]=0;}
     for (int i = 0; i < 4; i++){portos[i]=0;}
@@ -155,7 +143,8 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
             if (((barco.px)-casas)>0){min=((barco.px)-casas);}// fprintf(stderr, "min: %d\n",min);
             if (((barco.px)+casas)<w){max=((barco.px)+casas)+1;}
             for (int j = min; j < max; j++){
-                if (mapa[i][j].boat==0){ valor=(mapa[i][j].value);
+                valor=(mapa[i][j].value);
+                if (mapa[i][j].boat==0){ 
                     if ((valor!=11)&&(valor!=21)&&(valor!=31)&&(valor!=1)){soma=soma+valor;}
                 }
                 if (valor==1){portos[dir]=portos[dir]+1;}
@@ -166,12 +155,13 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
     }else if((barco.py)!=0){
         int soma=0; int dir=0; int min=0; int max=w; int ymin=0; int ymax=h; int valor=0;
         // if (((barco.py)-casas)>0){ymin=((barco.py)-casas);}
-        // if (((barco.py)+casas)<h){ymax=((barco.py)+casas)+1;}
-        for (int i = 0; i < (barco.py); i++){
+        // if (((barco.py)+casas)<h){ymax=((barco.py)+casas)+1;}//74703
+        for (int i = (barco.py)-1; i < (barco.py); i++){
             if (((barco.px)-casas)>0){min=((barco.px)-casas);}// fprintf(stderr, "min: %d\n",min);
             if (((barco.px)+casas)<w){max=((barco.px)+casas)+1;}
             for (int j = min; j < max; j++){
-                if (mapa[i][j].boat==0){ valor=(mapa[i][j].value);
+                valor=(mapa[i][j].value);
+                if (mapa[i][j].boat==0){ 
                     if ((valor!=11)&&(valor!=21)&&(valor!=31)&&(valor!=1)){soma=soma+valor;}
                 }
                 if (valor==1){portos[dir]=portos[dir]+1;}
@@ -188,7 +178,8 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
             if (((barco.px)-casas)>0){min=((barco.px)-casas);}
             if (((barco.px)+casas)<w){max=((barco.px)+casas)+1;}
             for (int j = min; j < max; j++){
-                if (mapa[i][j].boat==0){ valor=(mapa[i][j].value);
+                valor=(mapa[i][j].value);
+                if (mapa[i][j].boat==0){ 
                     if ((valor!=11)&&(valor!=21)&&(valor!=31)&&(valor!=31)&&(valor!=1)){soma=soma+valor;}
                 }
                 if (valor==1){portos[dir]=portos[dir]+1;}
@@ -198,11 +189,12 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
         fprintf(stderr, "PortosBaixo: %d\n",portos[dir]);
     }else if((barco.py)!=(h-1)){
         int soma=0; int dir=1; int min=0; int max=w; int valor=0;
-        for (int i = ((barco.py)+1); i < ((barco.py)+(casas)); i++){
+        for (int i = ((barco.py)+1); i < ((barco.py)+2); i++){
             if (((barco.px)-casas)>0){min=((barco.px)-casas);}
             if (((barco.px)+casas)<w){max=((barco.px)+casas)+1;}
             for (int j = min; j < max; j++){
-                if (mapa[i][j].boat==0){ valor=(mapa[i][j].value);
+                valor=(mapa[i][j].value);
+                if (mapa[i][j].boat==0){ 
                     if ((valor!=11)&&(valor!=21)&&(valor!=31)&&(valor!=31)&&(valor!=1)){soma=soma+valor;}
                 }
                 if (valor==1){portos[dir]=portos[dir]+1;}
@@ -221,7 +213,8 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
             // if (((barco.px)-casas)>0){xmin=((barco.px)-casas);}
             if (((barco.px)+casas)<w){xmax=((barco.px)+casas)+1;}
             for (int j = xmin; j < xmax; j++){
-                if (mapa[i][j].boat==0){ valor=(mapa[i][j].value);
+                valor=(mapa[i][j].value);
+                if (mapa[i][j].boat==0){ 
                     if ((valor!=11)&&(valor!=21)&&(valor!=31)&&(valor!=31)&&(valor!=1)){soma=soma+valor;}
                 }
                 if (valor==1){portos[dir]=portos[dir]+1;}
@@ -256,16 +249,17 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
             // if (((barco.px)-casas)<w){xmax=((barco.px)+casas)+1;}
             // fprintf(stderr, "min: %d\n",xmin);
             for (int j = xmin; j < xmax; j++){
-                if (mapa[i][j].boat==0){ valor=(mapa[i][j].value);
+                valor=(mapa[i][j].value);
+                if (mapa[i][j].boat==0){ 
                     if ((valor!=11)&&(valor!=21)&&(valor!=31)&&(valor!=1)){soma=soma+valor;}
                 }
-                if (valor==1){portos[dir]=portos[dir]+1;}
+                if (valor==1){fprintf(stderr, "OPA\n");portos[dir]=portos[dir]+1;}
             }
         }direcoes[dir]=soma;
         fprintf(stderr, "AreaEsquerda: %d\n",direcoes[dir]);
         fprintf(stderr, "PortosEsquerda: %d\n",portos[dir]);
     }else if(((barco.px)!=0)>=0){
-        int soma=0; int dir=3; int xmin=0; int xmax=barco.px; int ymin=0; int ymax=h; int valor=0;
+        int soma=0; int dir=3; int xmin=barco.px-1; int xmax=barco.px; int ymin=0; int ymax=h; int valor=0;
         if (((barco.py)-casas)>0){ymin=((barco.py)-casas);}
         if (((barco.py)+casas)<h){ymax=((barco.py)+casas)+1;}
         for (int i = ymin; i < ymax; i++){
@@ -273,7 +267,8 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
             // if (((barco.px)-casas)<w){xmax=((barco.px)+casas)+1;}
             // fprintf(stderr, "min: %d\n",xmin);
             for (int j = xmin; j < xmax; j++){
-                if (mapa[i][j].boat==0){ valor=(mapa[i][j].value);
+                valor=(mapa[i][j].value);
+                if (mapa[i][j].boat==0){ 
                     if ((valor!=11)&&(valor!=21)&&(valor!=31)&&(valor!=1)){soma=soma+valor;}
                 }
                 if (valor==1){portos[dir]=portos[dir]+1;}
@@ -306,11 +301,11 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
             }
             if ((porto>0)&&(barco.qntPeixe>0)){
                 // if(decisao!=0){
-                if (porto>1){
-                    //Condicao para a melhor direcao caso duas direcoes tenham porto
-                }else{
+                // if (porto>1){
+                //     //Condicao para a melhor direcao caso duas direcoes tenham porto
+                // }else{
                     direcao(decisao);
-                }
+                // }
             }else{
                 fprintf(stderr, "\nTa complicado");
                 if (casas==dmax){
@@ -326,10 +321,14 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
     }else{
         //Quero 1 para vender carga
         int porto=0;
+        int maxporto=0;
         for (int i = 0; i < 4; i++){
-            if (portos[i]==1){
-                porto=porto+1;
-                decisao=i;
+            if (portos[i]>0){
+                porto=porto+portos[i];
+                if (portos[i]>maxporto){
+                    maxporto=portos[i];
+                    decisao=i;
+                }
             }
         }
         // if ((decisao==0)&&(barco.py==0)){
@@ -337,10 +336,11 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
         // }else{
         //     direcao(decisao);
         // }
-        
+        fprintf(stderr, "Porto: %d\n", porto);
         //Decidir posicao
         if (porto>0){
             // if(decisao!=0){
+                fprintf(stderr, "A decisao de area eh: %d\n", decisao);
             direcao(decisao);
             // }else{
             //     fprintf(stderr, "\nTa complicado");
@@ -357,6 +357,7 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
                     // }
                     fprintf(stderr, "\nErro");
                 }else{
+                    // fprintf(stderr, "\nErro2");
                     varrerArea(direcoes, barco, h, w, mapa, acao, casas+1);
                 }
             // }else{
@@ -365,220 +366,6 @@ void varrerArea(int *direcoes, Barco barco, int h, int w, Celula **mapa, int aca
         }
     }
 }
-
-/**********************************************************************************************************
-***********************************************************************************************************
-============== SEGUNDA FUNCAO RESPONSAVEL POR ESCOLHER O MELHOR MOVIMENTO PARA O BARCO ====================
-***********************************************************************************************************
-***********************************************************************************************************/
-void movimentacaoDiag(int *direcoes, Barco barco, int h, int w, Celula **mapa, int acao, int casas){ 
-    // 0:cima  1:baixo    2:direita   3:esquerda
-    // 4:cimaesquerda  5:cimadireita    6:baixoesquerda   7:baixodireita
-    for (int i = 4; i < 8; i++){direcoes[i]=0;}
-    //CONFERIR DIRECAO cimaesquerda
-    int espaco=CARGAMAX-(barco.qntPeixe);
-    if ((((barco.py)-casas)>=0)&&(((barco.px)-casas)>=0)){
-        //4:cimaesquerda
-        int dir=4; int qtdPeixe=0;
-        int cimaesquerda = mapa[(barco.py)-casas][(barco.px)-casas].value;
-        int cimaesquerdabot = mapa[(barco.py)-casas][(barco.px)-casas].boat;
-        if ((cimaesquerdabot==1)||(cimaesquerda==0)){
-            direcoes[dir]=0;
-        }else if(cimaesquerda==1){
-            direcoes[dir]=1;
-        }else if((cimaesquerda>11) && (cimaesquerda<20)){
-            //tainha nessa direcao
-            qtdPeixe=cimaesquerda-11;
-            if (espaco>qtdPeixe){ direcoes[dir]=qtdPeixe*PTAINHA;
-            }else{direcoes[dir]=espaco*PTAINHA;}
-        }else if((cimaesquerda>21) && (cimaesquerda<30)){
-            //cioba nessa direcao
-            qtdPeixe=cimaesquerda-21;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PCIOBA;
-            }else{direcoes[dir]=espaco*PCIOBA;}
-        }else if(cimaesquerda>31){
-            //ROBALO nessa direcao
-            qtdPeixe=cimaesquerda-31;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PROBALO;
-            }else{direcoes[dir]=espaco*PROBALO;}
-        }else{
-            direcoes[dir]=0;
-        }
-        fprintf(stderr, "Cimaesquerda: %d\n",direcoes[dir]);
-    }   
-
-    //CONFERIR DIRECAO cimadireita
-    if (((barco.py-casas)>=0)&&((barco.py+casas)<=(w-1))){
-        //5:cimadireita
-        int dir=5; int qtdPeixe=0;
-        int cimadireita = mapa[(barco.py)-casas][(barco.px)+casas].value;
-        int cimadireitabot = mapa[(barco.py)-casas][(barco.px)+casas].boat;
-        if ((cimadireitabot==1)||(cimadireita==0)){
-            direcoes[dir]=0;
-        }else if(cimadireita==1){
-            direcoes[dir]=1;
-        }else if((cimadireita>11) && (cimadireita<20)){
-            //tainha nessa direcao
-            qtdPeixe=cimadireita-11;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PTAINHA;
-            }else{direcoes[dir]=espaco*PTAINHA;}
-        }else if((cimadireita>21) && (cimadireita<30)){
-            //cioba nessa direcao
-            qtdPeixe=cimadireita-21;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PCIOBA;
-            }else{direcoes[dir]=espaco*PCIOBA;}
-        }else if(cimadireita>31){
-            //ROBALO nessa direcao
-            qtdPeixe=cimadireita-31;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PROBALO;
-            }else{direcoes[dir]=espaco*PROBALO;}
-        }else{
-            direcoes[dir]=0;
-        }
-        fprintf(stderr, "Cimadireita: %d\n",direcoes[dir]);
-    }  
-
-    //CONFERIR DIRECAO baixoesquerda
-    if (((barco.py+casas)<=(h-1))&&(((barco.px)-casas)>=0)){
-        //6:baixoesquerda
-        int dir=6; int qtdPeixe=0;
-        int baixoesquerda = mapa[(barco.py)+casas][(barco.px)-casas].value;
-        int baixoesquerdabot = mapa[(barco.py)+casas][(barco.px)-casas].boat;
-        if ((baixoesquerdabot==1)||(baixoesquerda==0)){
-            direcoes[dir]=0;
-        }else if(baixoesquerda==1){
-            direcoes[dir]=1;
-        }else if((baixoesquerda>11) && (baixoesquerda<20)){
-            //tainha nessa direcao
-            qtdPeixe=baixoesquerda-11;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PTAINHA;
-            }else{ direcoes[dir]=espaco*PTAINHA;}
-        }else if((baixoesquerda>21) && (baixoesquerda<30)){
-            //cioba nessa direcao
-            qtdPeixe=baixoesquerda-21;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PCIOBA;
-            }else{direcoes[dir]=espaco*PCIOBA;}
-        }else if(baixoesquerda>31){
-            //ROBALO nessa direcao
-            qtdPeixe=baixoesquerda-31;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PROBALO;
-            }else{direcoes[dir]=espaco*PROBALO;}
-        }else{
-            direcoes[dir]=0;
-        }
-        fprintf(stderr, "Baixoequerda: %d\n",direcoes[dir]);
-    }   
-
-    //CONFERIR DIRECAO A baixodireita
-    if (((barco.py+casas)<=(h-1))&&((barco.py+casas)<=(w-1))){ //ADICIONAR O ANDDDDD
-        //7:baixodireita
-        int dir=7; int qtdPeixe=0;
-        int baixodireita = mapa[(barco.py)+casas][(barco.px)+casas].value;
-        int baixodireitabot = mapa[(barco.py)+casas][(barco.px)+casas].boat;
-        if ((baixodireitabot==1)||(baixodireita==0)){
-            direcoes[dir]=0;
-        }else if(baixodireita==1){
-            direcoes[dir]=1;
-        }else if((baixodireita>11) && (baixodireita<20)){
-            //tainha nessa direcao
-            qtdPeixe=baixodireita-11;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PTAINHA;
-            }else{direcoes[dir]=espaco*PTAINHA;}
-        }else if((baixodireita>21) && (baixodireita<30)){
-            //cioba nessa direcao
-            qtdPeixe=baixodireita-21;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PCIOBA;
-            }else{direcoes[dir]=espaco*PCIOBA;}
-        }else if(baixodireita>31){
-            //ROBALO nessa direcao
-            qtdPeixe=baixodireita-31;
-            if (espaco>qtdPeixe){direcoes[dir]=qtdPeixe*PROBALO;
-            }else{direcoes[dir]=espaco*PROBALO;}
-        }else{
-            direcoes[dir]=0;
-        }
-        fprintf(stderr, "baixodireita: %d\n",direcoes[dir]);
-    }   
-    for (int i = 4; i < 8; i++){fprintf(stderr, "%d: %d",i, direcoes[i]);}
-    
-    int decisao=0;
-    if (acao==0){ //PESCA
-        //Quero o maior valor pois quero pescar
-        int max=0;
-        for (int i = 4; i < 8; i++){
-            if (direcoes[i]>max){
-                max=direcoes[i];
-                decisao=i;
-            }
-        }fprintf(stderr, "A decisao eh1: %d\n", decisao);
-        //Decidir posicao
-        if (max==0){
-            // Conferir diagonais
-            // 4:cimaesquerda  5:cimadireita    6:baixoesquerda   7:baixodireita
-            if(decisao!=0){
-                direcao(decisao);
-            }else{
-                fprintf(stderr, "\nTa complicado1");
-                varrerArea(direcoes, barco, h, w, mapa, acao, casas+1);
-            }
-            // movimentacao(direcoes, barco, line, h, w, mapa, 0, casas+1);
-        }else if(max==1){
-            if (barco.qntPeixe>0){
-                //Comando para direcao do porto
-                if(decisao!=0){
-                    direcao(decisao);
-                }else{
-                    fprintf(stderr, "\nTa complicado2");
-                    varrerArea(direcoes, barco, h, w, mapa, acao, casas+1);
-                }
-            }else{
-                if(decisao!=0){
-                    direcao(decisao);
-                }else{
-                    fprintf(stderr, "\nTa complicado3");
-                    varrerArea(direcoes, barco, h, w, mapa, acao, casas+1);
-                }
-            }
-        }else{
-            //Comando para direcao do peixe mais valioso
-            if(decisao!=0){
-                direcao(decisao);
-            }else{
-                fprintf(stderr, "\nTa complicado4");
-                varrerArea(direcoes, barco, h, w, mapa, acao, casas+1);
-            }
-        }
-    }else{
-        //Quero 1 para vender carga
-        int porto=0;
-        for (int i = 4; i < 8; i++){
-            if (direcoes[i]==1){
-                porto=1;
-                decisao=i;
-            }
-        }
-        fprintf(stderr, "A decisao eh2: %d\n", decisao);
-        //Decidir posicao
-        if (porto==1){
-            // if(decisao==0){
-            // direcao(decisao);
-            if((decisao==0)&&(barco.py==0)){
-                fprintf(stderr, "\nTa complicado5");
-                varrerArea(direcoes, barco, h, w, mapa, acao, casas+1);
-            }else{
-                direcao(decisao);
-            }
-        }else{
-            // if((decisao==0)&&(barco.py==0)){
-                fprintf(stderr, "\nTa complicado6");
-                varrerArea(direcoes, barco, h, w, mapa, acao, casas+1);
-            // }else{
-            //     direcao(decisao);
-            // }
-        }
-    }
-}
-
 
 /**********************************************************************************************************
 ***********************************************************************************************************
@@ -589,7 +376,7 @@ O parametro acao indica o que eu tenho intencao de fazer:***********************
 ***********************************************************************************************************/
 void movimentacao(int *direcoes, Barco barco, char* line, int h, int w, Celula **mapa, int acao, int casas){ 
     /* movimentacao no mar*/
-    for (int i = 0; i < 8; i++){direcoes[i]=0;}
+    for (int i = 0; i < 4; i++){direcoes[i]=0;}
 
     //Analisar posicoes acima, abaixo, a direita e a esquerda
     // 0:cima  1:baixo    2:direita   3:esquerda
@@ -600,7 +387,7 @@ void movimentacao(int *direcoes, Barco barco, char* line, int h, int w, Celula *
         int qtdPeixe=0;
         int cima = mapa[(barco.py)-casas][barco.px].value;
         int cimabot = mapa[(barco.py)-casas][barco.px].boat;
-        if (cimabot==1){direcoes[CIMA]=0;
+        if (cimabot>0){if (cima==1){direcoes[CIMA]=1;}else{direcoes[CIMA]=0;}
         }else if (cima==0){direcoes[CIMA]=0;
         }else if(cima==1){direcoes[CIMA]=1;
         }else if((cima>11) && (cima<20)){
@@ -630,7 +417,7 @@ void movimentacao(int *direcoes, Barco barco, char* line, int h, int w, Celula *
         int qtdPeixe=0;
         int baixo = mapa[(barco.py)+casas][barco.px].value;
         int baixobot = mapa[(barco.py)+casas][barco.px].boat;
-        if (baixobot==1){direcoes[BAIXO]=0;
+        if (baixobot>0){if (baixo==1){direcoes[BAIXO]=1;}else{direcoes[BAIXO]=0;}
         }else if (baixo==0){direcoes[BAIXO]=0;
         }else if(baixo==1){direcoes[BAIXO]=1;
         }else if((baixo>11) && (baixo<20)){
@@ -660,28 +447,28 @@ void movimentacao(int *direcoes, Barco barco, char* line, int h, int w, Celula *
         int qtdPeixe=0;
         int direita = mapa[barco.py][(barco.px)+casas].value;
         int direitabot = mapa[barco.py][(barco.px)+casas].boat;
-        if (direitabot==1){direcoes[DIREITA]=0;
-        }else if (direita==0){direcoes[DIREITA]=0;
-        }else if(direita==1){direcoes[DIREITA]=1;
+        if (direitabot>0){if (direita==1){direcoes[DIR]=1;}else{direcoes[DIR]=0;}
+        }else if (direita==0){direcoes[DIR]=0;
+        }else if(direita==1){direcoes[DIR]=1;
         }else if((direita>11) && (direita<20)){
             //tainha nessa direcao
             qtdPeixe=direita-11;
-            if (espaco>qtdPeixe){direcoes[DIREITA]=qtdPeixe*PTAINHA;
-            }else{direcoes[DIREITA]=espaco*PTAINHA;}
+            if (espaco>qtdPeixe){direcoes[DIR]=qtdPeixe*PTAINHA;
+            }else{direcoes[DIR]=espaco*PTAINHA;}
         }else if((direita>21) && (direita<30)){
             //cioba nessa direcao
             qtdPeixe=direita-21;
-            if (espaco>qtdPeixe){direcoes[DIREITA]=qtdPeixe*PCIOBA;
-            }else{direcoes[DIREITA]=espaco*PCIOBA;}
+            if (espaco>qtdPeixe){direcoes[DIR]=qtdPeixe*PCIOBA;
+            }else{direcoes[DIR]=espaco*PCIOBA;}
         }else if(direita>31){
             //ROBALO nessa direcao
             qtdPeixe=direita-31;
-            if (espaco>qtdPeixe){direcoes[DIREITA]=qtdPeixe*PROBALO;
-            }else{direcoes[DIREITA]=espaco*PROBALO;}
+            if (espaco>qtdPeixe){direcoes[DIR]=qtdPeixe*PROBALO;
+            }else{direcoes[DIR]=espaco*PROBALO;}
         }else{
-            direcoes[DIREITA]=0;
+            direcoes[DIR]=0;
         }
-        // fprintf(stderr, "Direita: %d",direcoes[DIREITA]);
+        // fprintf(stderr, "Direita: %d",direcoes[DIR]);
     }   
 
     //CONFERIR DIRECAO A ESQUERDA
@@ -690,28 +477,28 @@ void movimentacao(int *direcoes, Barco barco, char* line, int h, int w, Celula *
         int qtdPeixe=0;
         int esquerda = mapa[barco.py][(barco.px)-casas].value;
         int esquerdabot = mapa[barco.py][(barco.px)-casas].boat;
-        if (esquerdabot==1){direcoes[ESQUERDA]=0;
-        }else if (esquerda==0){direcoes[ESQUERDA]=0;
-        }else if(esquerda==1){direcoes[ESQUERDA]=1;
+        if (esquerdabot>0){if (esquerda==1){direcoes[ESQ]=1;}else{direcoes[ESQ]=0;}
+        }else if (esquerda==0){direcoes[ESQ]=0;
+        }else if(esquerda==1){direcoes[ESQ]=1;
         }else if((esquerda>11) && (esquerda<20)){
             //tainha nessa direcao
             qtdPeixe=esquerda-11;
-            if (espaco>qtdPeixe){direcoes[ESQUERDA]=qtdPeixe*PTAINHA;
-            }else{direcoes[ESQUERDA]=espaco*PTAINHA;}
+            if (espaco>qtdPeixe){direcoes[ESQ]=qtdPeixe*PTAINHA;
+            }else{direcoes[ESQ]=espaco*PTAINHA;}
         }else if((esquerda>21) && (esquerda<30)){
             //cioba nessa direcao
             qtdPeixe=esquerda-21;
-            if (espaco>qtdPeixe){direcoes[ESQUERDA]=qtdPeixe*PCIOBA;
-            }else{direcoes[ESQUERDA]=espaco*PCIOBA;}
+            if (espaco>qtdPeixe){direcoes[ESQ]=qtdPeixe*PCIOBA;
+            }else{direcoes[ESQ]=espaco*PCIOBA;}
         }else if(esquerda>31){
             //ROBALO nessa direcao
             qtdPeixe=esquerda-31;
-            if (espaco>qtdPeixe){direcoes[ESQUERDA]=qtdPeixe*PROBALO;
-            }else{direcoes[ESQUERDA]=espaco*PROBALO;}
+            if (espaco>qtdPeixe){direcoes[ESQ]=qtdPeixe*PROBALO;
+            }else{direcoes[ESQ]=espaco*PROBALO;}
         }else{
-            direcoes[ESQUERDA]=0;
+            direcoes[ESQ]=0;
         }
-        // fprintf(stderr, "Esquerda: %d",direcoes[ESQUERDA]);
+        // fprintf(stderr, "Esquerda: %d",direcoes[ESQ]);
     }   
     for (int i = 0; i < 4; i++){fprintf(stderr, "%d: %d",i, direcoes[i]);}
     
@@ -728,17 +515,16 @@ void movimentacao(int *direcoes, Barco barco, char* line, int h, int w, Celula *
         }
         //Decidir posicao
         if (max==0){
-            // Conferir diagonais
-            // 4:cimaesquerda  5:cimadireita    6:baixoesquerda   7:baixodireita
-            movimentacaoDiag(direcoes, barco, h, w, mapa, 0, 1);
-            // movimentacao(direcoes, barco, line, h, w, mapa, acao, casas+1);
+            // Conferir diagonais´
+            varrerArea(direcoes, barco, h, w, mapa, acao, casas);
+            // movimentacaoDiag(direcoes, barco, h, w, mapa, 0, 1);
         }else if(max==1){
             if (barco.qntPeixe>0){
                 //Comando para direcao do porto
                 direcao(decisao);
             }else{
-                movimentacaoDiag(direcoes, barco, h, w, mapa, 0, 1);
-                // movimentacao(direcoes, barco, line, h, w, mapa, acao, casas+1);
+                varrerArea(direcoes, barco, h, w, mapa, acao, casas);
+                // movimentacaoDiag(direcoes, barco, h, w, mapa, 0, 1);
             }
         }else{
             //Comando para direcao do peixe mais valioso
@@ -757,8 +543,8 @@ void movimentacao(int *direcoes, Barco barco, char* line, int h, int w, Celula *
         if (porto==1){
             direcao(decisao);
         }else{
-            movimentacaoDiag(direcoes, barco, h, w, mapa, 1, 1);
-            // movimentacao(direcoes, barco, line, h, w, mapa, acao, casas+1);
+            varrerArea(direcoes, barco, h, w, mapa, acao, casas);
+            // movimentacaoDiag(direcoes, barco, h, w, mapa, 1, 1);
         }
     }
     scanf("%s", line);
@@ -770,7 +556,6 @@ void movimentacao(int *direcoes, Barco barco, char* line, int h, int w, Celula *
 ***********************************************************************************************************
 ***********************************************************************************************************
 ***********************************************************************************************************/
-
 
 // === MAIN ===
 // === INICIO DA PARTIDA === 
@@ -791,7 +576,7 @@ int main() {
 
     Barco barco;
     Celula **mapa;
-    int direcoes[8];
+    int direcoes[4];
     
 	// O bot entra num laço infinito, mas não se preocupe porque o simulador irá matar
 	// o processo quando o jogo terminar.
@@ -810,10 +595,8 @@ int main() {
         }else if(barco.casaAtual==1){
             if (barco.inicio==0){
                 barco.inicio=1;
-                /* movimentacao como se estivesse no mar*/
                 movimentacao(direcoes, barco, line, h, w, mapa, 0, 1);
             }else{
-                /* Vamo vender aqui*/
                 if (barco.qntPeixe>0){
                     printf("SELL\n");
                     scanf("%s", line);
@@ -823,9 +606,7 @@ int main() {
                         barco.seabass=0;
                         barco.qntPeixe=0;
                     }
-                }else{
-                    movimentacao(direcoes, barco, line, h, w, mapa, 0, 1);
-                }
+                }else{movimentacao(direcoes, barco, line, h, w, mapa, 0, 1);}
             }
         }else{
             if (((barco.casaAtual>11) && (barco.casaAtual<20))||((barco.casaAtual>21) && (barco.casaAtual<30))||(barco.casaAtual>31)){
@@ -837,17 +618,14 @@ int main() {
                     ret=strcmp(line, "MULLET");
                     if (ret==0){
                         barco.mullet=barco.mullet+1;
-                        fprintf(stderr, "Mais um sushi de tainha\n"); 
                     }else {
                         ret=strcmp(line, "SNAPPER");
                         if (ret==0){
                             barco.snapper=barco.snapper+1;
-                            fprintf(stderr, "Mais um sushi de cioba\n"); 
                         }else{
                             ret=strcmp(line, "SEABASS");
                             if (ret==0){
                                 barco.seabass=barco.seabass+1;
-                                fprintf(stderr, "Mais um sushi de robalo\n"); 
                             }
                         }
                     }
@@ -857,12 +635,11 @@ int main() {
                     }
                 }else{
                     fprintf(stderr, "Capacidade maxima\n"); 
-                    /* movimentacao como se estivesse no mar*/
                     movimentacao(direcoes, barco, line, h, w, mapa, 1, 1);
                 }
             }else{
-                /* movimentacao como se estivesse no mar*/
-                movimentacao(direcoes, barco, line, h, w, mapa, 0, 1);
+                if (barco.qntPeixe<10){movimentacao(direcoes, barco, line, h, w, mapa, 0, 1);
+                }else{movimentacao(direcoes, barco, line, h, w, mapa, 1, 1);}
             }
         }
         //Fim do while
